@@ -12,16 +12,16 @@ async function main(evt, ctx) {
   try {
     const dig = _.get(evt, 'queryStringParameters.url', '');
     console.log('dig:', dig);
-    const agw = [
-      'https:/',
-      _.get(evt, 'headers.Host', ''),
-      _.get(evt, 'requestContext.stage', ''),
-      _.get(evt, 'requestContext.resourcePath', ''),
-    ].join('/');
-    if (dig === '' && isHttpUrl(agw)) {
+    const agw = {
+      host: _.get(evt, 'headers.Host', ''),
+      stage: _.get(evt, 'requestContext.stage', ''),
+      resource: _.get(evt, 'requestContext.resourcePath', ''),
+    };
+    const agwUrl = `https://${agw.host}/${agw.stage}${agw.resource}`;
+    if (dig === '' && isHttpUrl(agwUrl)) {
       console.log('dig is empty and we are hosted in API Gateway, returning the shim.');
       const patch = await fs.readFile('websocket-redirect-shim.polyfilled.min.js', { encoding: 'utf-8' });
-      const script = `;window.WEBSOCKET_REDIRECT_RESOLVER='${agw}';${patch}`;
+      const script = `;window.WEBSOCKET_REDIRECT_RESOLVER='${agwUrl}';${patch};`;
       return createResponse(200, script, {
         'Content-Type': 'application/javascript; charset=utf-8',
       });

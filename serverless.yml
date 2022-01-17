@@ -1,0 +1,17 @@
+service: websocket-redirect-shim
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+
+functions:
+  resolve:
+    handler: resolve.main
+    events:
+      - http:
+          path: resolve
+          method: get
+          cors: true

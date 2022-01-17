@@ -1,22 +1,20 @@
 {
   "name": "websocket-redirect-support",
-  "version": "0.1.0",
-  "bin": {
-    "websocket-redirect-support": "infra.js"
-  },
+  "version": "0.0.0",
   "scripts": {
+    "postinstall": "npm run build",
     "build:modern": "browserify -t [ babelify --global ] patch.js | npx uglifyjs -cm --source-map -o websocket-redirect-shim.min.js",
     "build:legacy": "browserify -t [ babelify --global ] index.js | npx uglifyjs -cm --source-map -o websocket-redirect-shim.polyfilled.min.js",
     "build": "npm-run-all build:*"
   },
   "dependencies": {
-    "aws-cdk": "^2.8.0",
-    "aws-cdk-lib": "2.8.0",
+    "axios": "^0.24.0",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "constructs": "^10.0.0",
     "core-js": "^3.20.3",
     "debug": "^4.3.3",
+    "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "proxy-polyfill": "^0.3.2",
     "regenerator-runtime": "^0.13.9",

@@ -5,6 +5,8 @@
 (function (WebSocketNative = window.WebSocket) {
   const debug = require('debug')('ws:redirect');
   debug('patching native WebSocket class to support HTTP redirects');
+  const statics = Object.keys(WebSocketNative);
+  debug('websocket statics: "%o"', statics);
   window.WebSocket = class {
     constructor(url, ...args) {
       this.work = [];
@@ -33,6 +35,10 @@
         new Proxy(this, {
           get: function (target, prop) {
             debug('GETTER trace: "%s"', prop);
+            if (statics.includes(prop)) {
+              debug('GETTER "%s" is a static', prop);
+              return Reflect.get(WebSocketNative, prop);
+            }
             switch (prop) {
               case 'construct':
               case 'endpoint':
@@ -40,12 +46,6 @@
               case 'work':
                 debug('GETTER "%s" does not go through proxy', prop);
                 return Reflect.get(...arguments);
-              case 'OPEN':
-              case 'CLOSED':
-              case 'CLOSING':
-              case 'CONNECTING':
-                debug('GETTER "%s" is a static', prop);
-                return Reflect.get(WebSocketNative, prop);
               case 'readyState':
               case 'bufferedAmount':
                 return this.socket ? Reflect.get(this.socket, prop) : 0;

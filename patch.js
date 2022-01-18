@@ -25,11 +25,19 @@
             const { dig, dug } = await response.json();
             debug('resolver dig: "%o" dug: "%o"', dig, dug);
             this.endpoint = dug;
+          } catch (err) {
+            debug('failed to query for a redirect: "%o"', err);
           } finally {
             debug('websocket final endpoint: "%s"', this.endpoint);
             this.socket = new WebSocketNative(this.endpoint, ...args);
             debug('flushing %d queued operations', this.work.length);
-            for (const op of this.work) op(this.socket);
+            for (const op of this.work) {
+              try {
+                op(this.socket);
+              } catch (err) {
+                debug('failed to execute queued: %o', err);
+              }
+            }
           }
         })(),
         new Proxy(this, {

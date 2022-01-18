@@ -40,10 +40,7 @@
               return Reflect.get(WebSocketNative, prop);
             }
             switch (prop) {
-              case 'construct':
-              case 'endpoint':
-              case 'socket':
-              case 'work':
+              default:
                 debug('GETTER "%s" does not go through proxy', prop);
                 return Reflect.get(...arguments);
               case 'readyState':
@@ -55,7 +52,11 @@
               case 'protocol':
               case 'url':
                 return this.socket ? Reflect.get(this.socket, prop) : '';
-              default:
+              case 'send':
+              case 'close':
+              case 'dispatchEvent':
+              case 'addEventListener':
+              case 'removeEventListener':
                 return this.socket
                   ? Reflect.get(this.socket, prop)
                   : function (...args) {
@@ -72,11 +73,13 @@
           set: function (target, prop, value) {
             debug('SETTER trace: "%s"="%o"', prop, value);
             switch (prop) {
-              case 'endpoint':
-              case 'socket':
-              case 'work':
-                return Reflect.set(...arguments);
               default:
+                return Reflect.set(...arguments);
+              case 'binaryType':
+              case 'onmessage':
+              case 'onerror':
+              case 'onclose':
+              case 'onopen':
                 return this.socket
                   ? Reflect.set(this.socket, prop, value)
                   : (() => {
